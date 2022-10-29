@@ -1,20 +1,21 @@
 import type {NextFunction, Request, Response} from 'express';
 import express from 'express';
-import LikeCollection from './collection';
+import dislikeCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as freetValidator from '../freet/middleware';
-import * as likeValidator from '../like/middleware';
+import * as dislikeValidator from '../dislike/middleware';
 import * as util from './util';
-import dislikeCollection from '../dislike/collection';
+import LikeCollection from '../like/collection';
+import { Types } from 'mongoose';
 
 const router = express.Router();
 
 /**
- * Get number of likes on a Freet by freetId.
+ * Get number of dislikes on a Freet by freetId.
  *
- * @name GET /api/likes?freetId=id
+ * @name GET /api/dislikes?freetId=id
  *
- * @return {LikeResponse[]} - An array of likes associated with id, freetId
+ * @return {dislikeResponse[]} - An array of dislikes associated with id, freetId
  * @throws {400} - If freetId is not given
  * @throws {404} - If no freet has given freetId
  *
@@ -42,14 +43,15 @@ router.get(
     freetValidator.isFreetExists
   ],
   async (req: Request, res: Response) => {
-    const numfreetLikes = await LikeCollection.findAllLikesByFreetId(req.query.freetId as string);
-    res.status(200).json({"likeCount": numfreetLikes.length});
+    const numfreetdislikes = await dislikeCollection.findAlldislikesByFreetId(req.query.freetId as string);
+    res.status(200).json({"dislikeCount": numfreetdislikes.length});
   }
 );
+
 /**
- * Delete a like
+ * Delete a dislike
  *
- * @name DELETE /api/likes?freetId=id
+ * @name DELETE /api/dislikes?freetId=id
  *
  * @return {string} - A success message
  * @throws {403} - If the user is not logged in or is not the author of
@@ -66,27 +68,28 @@ router.delete(
   [
     userValidator.isUserLoggedIn,
     freetValidator.isFreetExists,
-    likeValidator.isLikeExists
+    dislikeValidator.isdislikeExists
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string);
-    await LikeCollection.deleteOne(userId, req.query.freetId as string);
+    await dislikeCollection.deleteOne(userId, req.query.freetId as string);
     res.status(200).json({
-      message: 'Your like was deleted successfully.'
+      message: 'Your dislike was deleted successfully.'
     });
   }
 );
 
 /**
- * Create a new like
+ * Create a new dislike
  *
- * @name POST /api/likes
+ * @name POST /api/dislikes
  *
- * @param {string} freetId - the freetId that we want to assign a like to
- * @return {LikeResponse} - The created like
+ * @param {string} freetId - the freetId that we want to assign a dislike to
+ * @return {dislikeResponse} - The created dislike
  * @throws {403} - If the user is not logged in
  */
 router.post(
+  
   '/',
   async (req: Request, res: Response, next: NextFunction) => {
     // add to req.params for freet validator to work
@@ -96,26 +99,27 @@ router.post(
   [
     userValidator.isUserLoggedIn,
     freetValidator.isFreetExists,
-    likeValidator.noExistingLike
+    dislikeValidator.noExistingdislike
   ],
+  
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; 
-    const like = await LikeCollection.addOne(userId, req.body.freetId);
-    const dislike = dislikeCollection.findOne(userId, req.body.freetId as string);
-    if (dislike) {
+    const dislike = await dislikeCollection.addOne(userId, req.body.freetId);
+    const like = LikeCollection.findOne(userId, req.body.freetId as string);
+    if (like) {
       console.log("here");
-      const deleted = await dislikeCollection.deleteOne(userId, req.body.freetId as string);
+      const deleted = await LikeCollection.deleteOne(userId, req.body.freetId as string);
       if (deleted) {
         console.log("deleted");
       }
     }
     res.status(201).json({
-      message: 'Your like was created successfully.',
-      like: util.constructLikeResponse(like)
+      message: 'Your dislike was created successfully.',
+      dislike: util.constructdislikeResponse(dislike)
     });
   }
 );
 
 
 
-export {router as likeRouter};
+export {router as dislikeRouter};

@@ -1,20 +1,21 @@
+/* eslint-disable @typescript-eslint/quotes */
 // Show an object on the screen.
 function showObject(obj) {
-  const pre = document.getElementById('response');
+  const pre = document.getElementById("response");
   const preParent = pre.parentElement;
   pre.innerText = JSON.stringify(obj, null, 4);
-  preParent.classList.add('flashing');
+  preParent.classList.add("flashing");
   setTimeout(() => {
-    preParent.classList.remove('flashing');
+    preParent.classList.remove("flashing");
   }, 300);
 }
 
 function showResponse(response) {
-  response.json().then(data => {
+  response.json().then((data) => {
     showObject({
       data,
       status: response.status,
-      statusText: response.statusText
+      statusText: response.statusText,
     });
   });
 }
@@ -28,17 +29,24 @@ function showResponse(response) {
 
 // Map form (by id) to the function that should be called on submit
 const formsAndHandlers = {
-  'create-user': createUser,
-  'delete-user': deleteUser,
-  'change-username': changeUsername,
-  'change-password': changePassword,
-  'sign-in': signIn,
-  'sign-out': signOut,
-  'view-all-freets': viewAllFreets,
-  'view-freets-by-author': viewFreetsByAuthor,
-  'create-freet': createFreet,
-  'edit-freet': editFreet,
-  'delete-freet': deleteFreet
+  "create-user": createUser,
+  "delete-user": deleteUser,
+  "change-username": changeUsername,
+  "change-password": changePassword,
+  "update-ban": updateBan,
+  "sign-in": signIn,
+  "sign-out": signOut,
+  "view-all-freets": viewAllFreets,
+  "view-freets-by-author": viewFreetsByAuthor,
+  "create-freet": createFreet,
+  "edit-freet": editFreet,
+  "delete-freet": deleteFreet,
+  "like-freet": likeFreet,
+  "delete-like": deleteLike,
+  "view-num-likes": viewLikeCountOfFreet,
+  "dislike-freet": dislikeFreet,
+  "delete-dislike": deletedislike,
+  "view-num-dislikes": viewdislikeCountOfFreet,
 };
 
 // Attach handlers to forms

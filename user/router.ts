@@ -4,6 +4,7 @@ import FreetCollection from '../freet/collection';
 import UserCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as util from './util';
+import UserModel from './model';
 
 const router = express.Router();
 
@@ -91,6 +92,30 @@ router.post(
       message: `Your account was created successfully. You have been logged in as ${user.username}`,
       user: util.constructUserResponse(user)
     });
+  }
+);
+
+/**
+ * Update a user's ban status.
+ *
+ * @name PUT /api/users/ban
+ *
+ * @param {string} username - The user's new username
+ * @return {UserResponse} - The updated user
+ * @throws {400} - If user does not exist
+ */
+ router.put(
+  '/ban',
+  async (req: Request, res: Response) => {
+    const userId = (req.body.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const user = await UserModel.findOne({ userId })
+    if (user) {
+      const ban = await UserCollection.updateBan(userId);
+      res.status(200).json({
+        message: 'Your profile was updated successfully.',
+        user: util.constructUserResponse(user)
+      });
+    }
   }
 );
 
